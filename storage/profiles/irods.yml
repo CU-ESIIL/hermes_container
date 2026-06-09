@@ -1,0 +1,10 @@
+type: irods
+host_env: IRODS_HOST
+port_env: IRODS_PORT
+zone_env: IRODS_ZONE
+credentials_env:
+  username: IRODS_USER_NAME
+  password: IRODS_PASSWORD
+  resource: IRODS_DEFAULT_RESOURCE
+notes: "Install and configure iRODS tooling per deployment; keep secrets in environment variables."
+

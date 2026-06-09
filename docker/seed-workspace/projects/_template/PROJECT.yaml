@@ -1,0 +1,29 @@
+# Project identity and routing map.
+slug: example-project
+title: Example project
+status: draft
+owner: human-pi
+
+paths:
+  active_workspace: /workspace/projects/example-project
+  imports: []
+  outputs: /workspace/outputs/example-project
+  external_storage: /external_storage/local/example-project
+
+github:
+  registry: /workspace/.openclaw-github/authorized-repos.yaml
+  repos: []
+
+data_policy:
+  default_mode: stream-first
+  large_data_location: /external_storage/local/example-project
+  copy_into_workspace: only small derived or reviewed artifacts
+  credentials: never in workspace files
+
+review:
+  human_approval_required_for:
+    - adding credentials
+    - mounting new host folders
+    - pushing to GitHub
+    - publishing outputs
+    - copying large external datasets into the workspace

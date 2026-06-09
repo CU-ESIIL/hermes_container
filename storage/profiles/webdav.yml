@@ -1,0 +1,7 @@
+type: webdav
+href: https://example.org/remote.php/dav/files/hermes
+credentials_env:
+  username: WEBDAV_USER
+  password: WEBDAV_PASSWORD
+notes: "Do not store WebDAV credentials in this file."
+

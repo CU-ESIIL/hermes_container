@@ -1,0 +1,167 @@
+name: Hermes runtime from secrets
+
+on:
+  workflow_dispatch:
+    inputs:
+      instance_name:
+        description: Instance name to launch on the runner
+        default: github-runtime
+        required: true
+      gateway_port:
+        description: Hermes gateway port
+        default: "18789"
+        required: true
+      workspace_ui_port:
+        description: JupyterLab port
+        default: "8888"
+        required: true
+      cms_port:
+        description: CMS and GitHub manager port
+        default: "8090"
+        required: true
+      authorize_launch_repo:
+        description: Add this repository to the workspace GitHub allowlist
+        default: "true"
+        required: true
+      runner_label:
+        description: Runner label. Use self-hosted for a durable instance.
+        default: ubuntu-latest
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  launch:
+    runs-on: ${{ inputs.runner_label }}
+    env:
+      OPENCLAW_MODEL: verde/js2/gpt-oss-120b
+      OPENCLAW_DEFAULT_MODEL: verde/js2/gpt-oss-120b
+      VERDE_LLM_BASE_URL: https://llm-api.cyverse.ai/v1
+      VERDE_LLM_DEFAULT_MODEL: js2/gpt-oss-120b
+      VERDE_LLM_PROVIDER_NAME: verde
+      HERMES_CONFIGURE_GITHUB: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Materialize runner-local secrets
+        shell: bash
+        env:
+          HERMES_GITHUB_TOKEN_SECRET: ${{ secrets.HERMES_GITHUB_TOKEN }}
+          HERMES_VERDE_LLM_API_KEY_SECRET: ${{ secrets.HERMES_VERDE_LLM_API_KEY || secrets.VERDE_LLM_API_KEY }}
+          HERMES_VERDE_LLM_BASE_URL_VALUE: ${{ vars.HERMES_VERDE_LLM_BASE_URL || vars.VERDE_LLM_BASE_URL || secrets.HERMES_VERDE_LLM_BASE_URL || secrets.VERDE_LLM_BASE_URL }}
+          HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE: ${{ vars.HERMES_VERDE_LLM_DEFAULT_MODEL || vars.VERDE_LLM_DEFAULT_MODEL || secrets.HERMES_VERDE_LLM_DEFAULT_MODEL || secrets.VERDE_LLM_DEFAULT_MODEL }}
+          HERMES_SLACK_BOT_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_BOT_TOKEN || secrets.SLACK_BOT_TOKEN }}
+          HERMES_SLACK_APP_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_APP_TOKEN || secrets.SLACK_APP_TOKEN }}
+          HERMES_SLACK_DEFAULT_CHANNEL_VALUE: ${{ vars.HERMES_SLACK_DEFAULT_CHANNEL || vars.SLACK_DEFAULT_CHANNEL || secrets.HERMES_SLACK_DEFAULT_CHANNEL || secrets.SLACK_DEFAULT_CHANNEL }}
+        run: |
+          set -Eeuo pipefail
+          umask 077
+          mkdir -p secrets
+          : > .env
+          resolved_verde_base_url="${HERMES_VERDE_LLM_BASE_URL_VALUE:-${VERDE_LLM_BASE_URL}}"
+          resolved_verde_default_model="${HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE:-${VERDE_LLM_DEFAULT_MODEL}}"
+          {
+            echo "OPENCLAW_MODEL=${OPENCLAW_MODEL}"
+            echo "OPENCLAW_DEFAULT_MODEL=${OPENCLAW_DEFAULT_MODEL}"
+            echo "VERDE_LLM_BASE_URL=${resolved_verde_base_url}"
+            echo "VERDE_LLM_DEFAULT_MODEL=${resolved_verde_default_model}"
+            echo "VERDE_LLM_PROVIDER_NAME=${VERDE_LLM_PROVIDER_NAME}"
+            echo "HERMES_CONFIGURE_GITHUB=${HERMES_CONFIGURE_GITHUB}"
+            echo "HERMES_RUNTIME_SECRETS_DIR=./secrets"
+            echo "SLACK_DEFAULT_CHANNEL=${HERMES_SLACK_DEFAULT_CHANNEL_VALUE}"
+          } >> .env
+          if [ -n "${HERMES_VERDE_LLM_API_KEY_SECRET}" ]; then
+            printf '%s\n' "${HERMES_VERDE_LLM_API_KEY_SECRET}" > secrets/verde_llm_api_key
+            echo "VERDE_LLM_API_KEY_FILE=/run/hermes-secrets/verde_llm_api_key" >> .env
+          fi
+          if [ -n "${HERMES_SLACK_BOT_TOKEN_SECRET}" ]; then
+            printf '%s\n' "${HERMES_SLACK_BOT_TOKEN_SECRET}" > secrets/slack_bot_token
+            echo "SLACK_BOT_TOKEN_FILE=/run/hermes-secrets/slack_bot_token" >> .env
+          fi
+          if [ -n "${HERMES_SLACK_APP_TOKEN_SECRET}" ]; then
+            printf '%s\n' "${HERMES_SLACK_APP_TOKEN_SECRET}" > secrets/slack_app_token
+            echo "SLACK_APP_TOKEN_FILE=/run/hermes-secrets/slack_app_token" >> .env
+          fi
+          if [ -n "${HERMES_GITHUB_TOKEN_SECRET}" ]; then
+            printf '%s\n' "${HERMES_GITHUB_TOKEN_SECRET}" > secrets/github_token
+            echo "HERMES_GITHUB_TOKEN_FILE=./secrets/github_token" >> "$GITHUB_ENV"
+            echo "HERMES_USE_SECRETS_OVERLAY=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Authorize launch repository
+        if: ${{ inputs.authorize_launch_repo == 'true' }}
+        shell: bash
+        env:
+          INSTANCE_NAME: ${{ inputs.instance_name }}
+        run: |
+          set -Eeuo pipefail
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          workspace_dir="instances/${INSTANCE_NAME}/workspace"
+          registry_dir="${workspace_dir}/.openclaw-github"
+          clone_dir="${workspace_dir}/repos/${repo}"
+          mkdir -p "${registry_dir}" "${workspace_dir}/repos"
+          tier="read"
+          if [ -f secrets/github_token ]; then
+            tier="contribute"
+          fi
+          {
+            echo "repositories:"
+            echo "  - owner: \"${owner}\""
+            echo "    repo: \"${repo}\""
+            echo "    url: \"${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git\""
+            echo "    local_path: \"/workspace/repos/${repo}\""
+            echo "    default_branch: \"${GITHUB_REF_NAME:-main}\""
+            echo "    permission_tier: \"${tier}\""
+            echo "    enabled: true"
+            echo "    notes: \"Launch repository for this Hermes appliance.\""
+          } > "${registry_dir}/authorized-repos.yaml"
+          if [ ! -d "${clone_dir}/.git" ]; then
+            git clone --local "${GITHUB_WORKSPACE}" "${clone_dir}"
+            git -C "${clone_dir}" remote set-url origin "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+            git -C "${clone_dir}" checkout -B "${GITHUB_REF_NAME:-main}" >/dev/null 2>&1 || true
+          fi
+
+      - name: Start Hermes instance
+        run: |
+          scripts/start-instance.sh \
+            "${{ inputs.instance_name }}" \
+            "${{ inputs.gateway_port }}" \
+            "${{ inputs.workspace_ui_port }}" \
+            "${{ inputs.cms_port }}"
+
+      - name: Runtime smoke checks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gateway_container="$(docker ps --filter "name=hermes-${{ inputs.instance_name }}-hermes-local-run" --format '{{.Names}}' | head -n 1)"
+          test -n "${gateway_container}"
+          docker exec "${gateway_container}" openclaw --version
+          docker exec "${gateway_container}" openclaw agents list
+          docker exec "${gateway_container}" openclaw agent \
+            --agent main \
+            --session-id "github-runtime-smoke-${GITHUB_RUN_ID}" \
+            --message 'Reply with exactly: OK' \
+            --timeout 120
+          curl -fsS "http://127.0.0.1:${{ inputs.cms_port }}/api/github/status" | jq '{git_installed, gh_installed, authenticated, auth_method, token_available}'
+
+      - name: Runtime links
+        run: |
+          {
+            echo "### Hermes runtime"
+            echo
+            echo "Gateway: http://127.0.0.1:${{ inputs.gateway_port }}"
+            echo
+            echo "JupyterLab: http://127.0.0.1:${{ inputs.workspace_ui_port }}/lab?token=hermes"
+            echo
+            echo "CMS: http://127.0.0.1:${{ inputs.cms_port }}"
+            echo
+            echo "GitHub manager: http://127.0.0.1:${{ inputs.cms_port }}/github"
+            echo
+            echo "Use a self-hosted runner or tunnel for durable remote access. GitHub-hosted runners are ephemeral."
+          } >> "$GITHUB_STEP_SUMMARY"

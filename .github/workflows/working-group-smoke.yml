@@ -1,0 +1,28 @@
+name: Working group smoke test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run working group smoke test
+        run: scripts/test-working-group.sh
+
+      - name: Run Hermes layout smoke test
+        run: scripts/test-hermes-layout.sh
+
+      - name: Run spatiotemporal runtime smoke test
+        run: scripts/test-spatiotemporal-runtime.sh
+
+      - name: Run secret smoke test
+        run: scripts/test-secrets.sh

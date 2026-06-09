@@ -1,0 +1,18 @@
+# Safe default registry for local template deployments.
+# Add private stores here only if credentials are referenced through environment variables.
+version: 1
+default_mode: stream
+stores:
+  local_workspace:
+    type: local
+    path: /workspace
+    description: Private working lab mounted into the container.
+  local_external:
+    type: local
+    path: /external_storage/local
+    description: Optional host-mounted large-data shelf.
+  public_stac_demo:
+    type: stac
+    href: https://earth-search.aws.element84.com/v1
+    description: Public STAC API for stream-first examples.
+

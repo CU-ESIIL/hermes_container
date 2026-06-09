@@ -1,0 +1,126 @@
+# OASIS Hermes working-group template configuration.
+#
+# Copy or edit this file when spawning a new scientific working group.
+# Keep secrets in .env, GitHub Secrets, Docker secrets, or deployment-specific
+# secret stores. Do not place tokens, credentials, or private data here.
+
+project:
+  title: "OASIS Hermes"
+  short_title: "Hermes"
+  subtitle: "ESIIL's multi-agent workspace"
+  mission: "Provide a calm, reproducible, GitHub-native scientific operations environment for environmental synthesis working groups."
+  lifecycle_state: "proposed"
+  repository: "CU-ESIIL/hermes_container"
+  branch: "main"
+  powered_by: "Hermes"
+
+branding:
+  enabled: true
+  project_title: "OASIS Hermes"
+  short_title: "Hermes"
+  subtitle: "ESIIL's multi-agent workspace"
+  icon: "docs/assets/brand/hermes.png"
+  hero_image: "docs/assets/brand/hermes.png"
+  primary_color: "#234A65"
+  accent_blue: "#42BCDC"
+  accent_green: "#007135"
+  body_text: "#161A19"
+  relief_gray: "#E3E3E3"
+  tone:
+    - calm
+    - scientific
+    - collaborative
+    - reproducible
+    - human-centered
+
+workspace:
+  repository_role: "control-plane-and-memory"
+  container_role: "ephemeral-runtime"
+  workspace_mount: "/workspace"
+  data_root: "/data"
+  external_storage_root: "/external_storage"
+  default_landing: "WORKING_GROUP_COCKPIT.md"
+  version_controlled:
+    - "README.md"
+    - "AGENTS.md"
+    - "PROJECT_CHARTER.md"
+    - "TEAM_BRIEF.md"
+    - "DECISIONS.md"
+    - "ASSUMPTIONS.md"
+    - "documents/"
+    - "prompts/"
+  generated_or_ephemeral:
+    - "runtime/"
+    - "cache/"
+    - "logs/"
+    - "outputs/"
+  external_storage_backed:
+    - "datasets/"
+    - "data/"
+
+agents:
+  user_facing_default: "pi-liaison"
+  human_review_required: true
+  tiers:
+    coordination:
+      - "PI Liaison / User Interview Agent"
+      - "Working Group Director"
+      - "Project Operations Manager"
+      - "Scientific Review and QA Director"
+    scientific_work:
+      - "Environmental Data Science Agent"
+      - "Geospatial and Remote Sensing Agent"
+      - "Data Curation and Metadata Agent"
+      - "Open Science and Reproducibility Agent"
+      - "Manuscript and Communication Agent"
+      - "Visualization and Interface Agent"
+    infrastructure:
+      - "Cloud and Container Infrastructure Agent"
+      - "Kubernetes and Distributed Compute Agent"
+      - "Storage and Data Infrastructure Agent"
+      - "GitHub and Workflow Automation Agent"
+      - "Literature and Knowledge Synthesis Agent"
+      - "Collaboration and Team Science Agent"
+
+integrations:
+  slack:
+    enabled: false
+    user_facing_component: "PI Liaison only"
+  github:
+    enabled: true
+    role: "control-plane"
+  openclaw:
+    enabled: true
+    role: "gateway-and-agent-runtime"
+  verde:
+    enabled: false
+    role: "bounded open-model experiments"
+  external_storage:
+    enabled: false
+    role: "large-data shelf"
+
+workflow_modes:
+  intake: true
+  cockpit: true
+  checkpoint: true
+  publication_pipeline: true
+  spatial_temporal_runtime: true
+  kubernetes_optional: true
+
+publication:
+  publish_from_workspace_only_after_review: true
+  approved_public_targets:
+    - "docs/reports/"
+    - "docs/dashboard/"
+    - "docs/assets/"
+
+safety:
+  agents_may_recommend_humans_approve: true
+  require_human_approval_for:
+    - "publishing"
+    - "deleting files"
+    - "pushing to GitHub"
+    - "installing third-party skills"
+    - "mounting new host folders"
+    - "external API use with billing implications"
+    - "claims about communities, Tribes, Indigenous knowledge, public health, law, or policy"

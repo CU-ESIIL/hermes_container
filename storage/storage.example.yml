@@ -1,0 +1,53 @@
+# Copy to storage.yml for local use. Keep real credentials in environment variables.
+version: 1
+default_mode: stream
+stores:
+  local_workspace:
+    type: local
+    path: /workspace
+    description: Private working lab mounted into the container.
+  local_external:
+    type: local
+    path: /external_storage/local
+    description: Optional host-mounted large-data shelf.
+  public_stac_demo:
+    type: stac
+    href: https://earth-search.aws.element84.com/v1
+    description: Public STAC API for stream-first examples.
+  public_cog_demo:
+    type: cog
+    href: https://oin-hotosm.s3.amazonaws.com/5a9e4b7c8f0db5000c1f2b90/0/5a9e4b7c8f0db5000c1f2b91.tif
+    description: Public COG-style raster endpoint used only as a metadata/link pattern.
+  lab_s3_bucket:
+    type: s3
+    bucket: s3://example-bucket/path
+    endpoint_url_env: S3_ENDPOINT_URL
+    credentials_env:
+      access_key_id: AWS_ACCESS_KEY_ID
+      secret_access_key: AWS_SECRET_ACCESS_KEY
+      region: AWS_DEFAULT_REGION
+    description: Template for S3-compatible institutional object storage.
+  webdav_drive:
+    type: webdav
+    href: https://example.org/remote.php/dav/files/hermes
+    credentials_env:
+      username: WEBDAV_USER
+      password: WEBDAV_PASSWORD
+    description: Template for WebDAV-backed shared storage.
+  irods_zone:
+    type: irods
+    host_env: IRODS_HOST
+    port_env: IRODS_PORT
+    zone_env: IRODS_ZONE
+    credentials_env:
+      username: IRODS_USER_NAME
+      password: IRODS_PASSWORD
+      resource: IRODS_DEFAULT_RESOURCE
+    description: Template for iRODS-backed research data storage.
+  osn_public:
+    type: s3
+    bucket: s3://example-osn-bucket/path
+    endpoint_url: https://mghp.osn.xsede.org
+    anonymous: true
+    description: Template for public Open Storage Network style buckets.
+

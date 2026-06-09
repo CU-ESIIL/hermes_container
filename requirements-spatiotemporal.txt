@@ -1,0 +1,26 @@
+# Core stream-first spatial-temporal stack for Hermes.
+# Keep this list conservative; heavier visualization extras are documented as opt-in.
+PyYAML
+requests
+aiohttp
+numpy
+pandas
+matplotlib
+scikit-learn
+pyarrow
+duckdb
+xarray
+dask
+zarr
+fsspec
+s3fs
+gcsfs
+shapely
+pyproj
+geopandas
+rasterio
+rioxarray
+pystac-client
+odc-stac
+stackstac
+folium

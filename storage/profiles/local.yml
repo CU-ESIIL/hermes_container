@@ -1,0 +1,5 @@
+type: local
+path: /external_storage/local
+mode: stream_or_cache
+notes: "Use bind mounts for large local datasets. Keep this path out of git."
+

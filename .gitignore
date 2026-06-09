@@ -1,0 +1,60 @@
+# Local Hermes/Docker runtime state
+data/*
+!data/.gitkeep
+workspace/*
+!workspace/.gitkeep
+external_storage/*
+!external_storage/.gitkeep
+instances/*
+!instances/.gitkeep
+.openclaw/
+.env
+.env.*
+!.env.example
+!docker/seed-workspace/services/pi_liaison/.env.template
+logs/
+!docker/seed-workspace/logs/
+!docker/seed-workspace/logs/README.md
+*.log
+secrets/
+*.pem
+*.key
+*.token
+storage/datasets.local.json
+storage/*.local.yml
+
+# Track only explicit workspace templates that are part of this repo.
+!workspace/services/
+workspace/services/*
+!workspace/services/pi_liaison/
+workspace/services/pi_liaison/*
+!workspace/services/pi_liaison/.env.template
+
+# Docker temp and local override files
+.docker/
+docker-compose.override.yml
+docker-compose.*.local.yml
+*.tar
+*.pid
+
+# Preserve reviewed domain-project snapshots under projects/.
+!projects/
+!projects/fractal_corridors/
+!projects/fractal_corridors/**
+!projects/fractal_corridors/workspace/logs/
+!projects/fractal_corridors/workspace/logs/**
+!projects/fractal_corridors/workspace/services/pi_liaison/.env.template
+
+# Python/MkDocs local output
+.cache/
+.workspace_cache/
+.playwright-mcp/
+.venv/
+__pycache__/
+site/
+dist/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/

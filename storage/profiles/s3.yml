@@ -1,0 +1,9 @@
+type: s3
+bucket: s3://example-bucket/path
+endpoint_url_env: S3_ENDPOINT_URL
+credentials_env:
+  access_key_id: AWS_ACCESS_KEY_ID
+  secret_access_key: AWS_SECRET_ACCESS_KEY
+  region: AWS_DEFAULT_REGION
+notes: "Use least-privilege keys. Prefer read-only credentials for analysis agents."
+

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">OASIS Hermes mark</title>
+  <desc id="desc">A geometric teal and green research-appliance emblem for Hermes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f5f4b"/>
+      <stop offset="100%" stop-color="#3aa0bd"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="52" fill="#f7fbf8"/>
+  <path d="M120 24 199 69v102l-79 45-79-45V69z" fill="url(#bg)"/>
+  <path d="M76 92h88v16H76zm0 40h88v16H76z" fill="#f7fbf8" opacity=".96"/>
+  <path d="M96 64h48v112H96z" fill="#d9f1ee" opacity=".92"/>
+  <circle cx="120" cy="120" r="20" fill="#0f5f4b"/>
+  <circle cx="120" cy="120" r="10" fill="#f7fbf8"/>
+</svg>

@@ -1,0 +1,49 @@
+site_name: "Hermes"
+site_description: "An ESIIL/OASIS research appliance for reproducible, authorized, workspace-aware Hermes runs."
+
+nav:
+  - Home: index.md
+  - Start Here:
+      - Start Here: start-here/index.md
+      - First 10 Minutes: start-here/first-10-minutes.md
+      - Setup: setup.md
+      - Secrets and Authorization: security-and-credentials.md
+  - Using Hermes:
+      - Agent Interface: agent-interface.md
+      - Filesystem: workspace-file-manager.md
+      - GitHub Integration: github-repository-manager.md
+      - Verde API: verde-api.md
+  - Workspace Model:
+      - Project Workspaces: project-workspaces.md
+      - Data Layout: data-layout.md
+      - Runtime State: runtime-state.md
+  - Developer Guide:
+      - Build and Run: build-and-run.md
+      - Smoke Tests: smoke-tests.md
+      - Troubleshooting: troubleshooting.md
+
+theme:
+  name: material
+  logo: assets/brand/hermes.svg
+  favicon: assets/brand/favicon.svg
+  palette:
+    primary: custom
+    accent: custom
+  features:
+    - navigation.sections
+    - navigation.top
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search

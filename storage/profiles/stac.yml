@@ -1,0 +1,5 @@
+type: stac
+href: https://earth-search.aws.element84.com/v1
+mode: stream
+notes: "Prefer STAC metadata search plus COG/Zarr streaming over bulk downloads."
+

@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+storage_root="${repo_root}/storage"
+if [ ! -d "${storage_root}/scripts" ] && [ -d /opt/hermes/storage/scripts ]; then
+  storage_root="/opt/hermes/storage"
+fi
+command="${1:-}"
+
+usage() {
+  cat <<'EOF'
+Usage: scripts/openclaw-storage <command> [args]
+
+Commands:
+  list              List configured storage stores
+  test              Validate storage configuration
+  browse STORE      Show the registered target for STORE
+  register          Register dataset metadata
+  cache             Create or dry-run a cache request
+  sync-output       Sync or dry-run output copy to a store
+EOF
+}
+
+if [ -z "${command}" ] || [ "${command}" = "-h" ] || [ "${command}" = "--help" ]; then
+  usage
+  exit 0
+fi
+
+shift || true
+
+case "${command}" in
+  list)
+    exec python3 "${storage_root}/scripts/list_storage.py" "$@"
+    ;;
+  test)
+    exec python3 "${storage_root}/scripts/test_storage.py" "$@"
+    ;;
+  browse)
+    exec python3 "${storage_root}/scripts/browse_storage.py" "$@"
+    ;;
+  register)
+    exec python3 "${storage_root}/scripts/register_dataset.py" "$@"
+    ;;
+  cache)
+    exec python3 "${storage_root}/scripts/cache_dataset.py" "$@"
+    ;;
+  sync-output)
+    exec python3 "${storage_root}/scripts/sync_outputs.py" "$@"
+    ;;
+  *)
+    echo "Unknown command: ${command}" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

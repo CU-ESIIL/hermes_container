@@ -1,0 +1,56 @@
+name: Hermes CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install docs dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install mkdocs mkdocs-material
+
+      - name: Compose config
+        run: docker compose config >/dev/null
+
+      - name: Shell syntax
+        run: |
+          while IFS= read -r file; do
+            bash -n "$file"
+          done < <(find scripts docker -type f -name '*.sh' | sort)
+
+      - name: Docs build
+        run: mkdocs build --strict
+
+      - name: Smoke tests
+        run: |
+          make test-layout
+          make test-working-group
+          make workspace-smoke-test
+          make github-smoke-test
+          make smoke-test
+          make test-secrets
+
+      - name: Secret hygiene
+        run: |
+          ! git ls-files --error-unmatch .env
+          ! git grep -nE 'xoxb-[A-Za-z0-9._-]{20,}|xapp-[A-Za-z0-9._-]{20,}|sk-[A-Za-z0-9._-]{20,}|gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,}' -- ':!*.example' ':!*.template'
+
+      - name: Stale branding check
+        run: |
+          ! rg -n 'OpenClaw|ScienceClaw' README.md docs mkdocs.yml .env.example docker-compose.yml Dockerfile config scripts/doctor.sh scripts/smoke_test.sh scripts/start-instance.sh

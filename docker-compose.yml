@@ -1,0 +1,154 @@
+services:
+  hermes-local:
+    image: oasis-hermes
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${HERMES_CONTAINER_NAME:-hermes-local}
+    working_dir: /data/workspace
+    stdin_open: true
+    tty: true
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OPENCLAW_MODEL: ${OPENCLAW_MODEL:-}
+      DATA_ROOT: /data
+      OPENCLAW_CONFIG_DIR: /data/.openclaw
+      OPENCLAW_AUTH_PROFILE_SECRET_DIR: /data/.openclaw/auth-profile-secrets
+      OPENCLAW_WORKSPACE: /data/workspace
+      EXTERNAL_STORAGE_ROOT: /external_storage
+      HERMES_CMS_PORT: ${HERMES_CMS_PORT:-8090}
+      HERMES_STORAGE_CONFIG: /repo/storage/storage.yml
+      HERMES_BRANDING: ${HERMES_BRANDING:-1}
+      HERMES_PROJECT_TITLE: ${HERMES_PROJECT_TITLE:-OASIS Hermes Working Group}
+      OPENCLAW_DEFAULT_MODEL: ${OPENCLAW_DEFAULT_MODEL:-codex/gpt-5.5}
+      OPENCLAW_GATEWAY_BIND: ${OPENCLAW_GATEWAY_BIND:-lan}
+      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+      OPENCLAW_GATEWAY_AUTH_MODE: ${OPENCLAW_GATEWAY_AUTH_MODE:-token}
+      OPENCLAW_CONTROL_ORIGINS: ${OPENCLAW_CONTROL_ORIGINS:-http://127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789},http://localhost:${OPENCLAW_GATEWAY_PORT:-18789}}
+      OPENCLAW_SEED_WORKSPACE: ${OPENCLAW_SEED_WORKSPACE:-1}
+      OPENCLAW_INIT_WORKING_GROUP: ${OPENCLAW_INIT_WORKING_GROUP:-1}
+      OPENCLAW_START_PI_LIAISON: ${OPENCLAW_START_PI_LIAISON:-1}
+      OPENCLAW_CONFIGURE_SLACK: ${OPENCLAW_CONFIGURE_SLACK:-1}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
+      SLACK_BOT_TOKEN_FILE: ${SLACK_BOT_TOKEN_FILE:-}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
+      SLACK_APP_TOKEN_FILE: ${SLACK_APP_TOKEN_FILE:-}
+      SLACK_DEFAULT_CHANNEL: ${SLACK_DEFAULT_CHANNEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_API_KEY_FILE: ${OPENAI_API_KEY_FILE:-}
+      VERDE_LLM_BASE_URL: ${VERDE_LLM_BASE_URL:-}
+      VERDE_LLM_API_KEY: ${VERDE_LLM_API_KEY:-}
+      VERDE_LLM_API_KEY_FILE: ${VERDE_LLM_API_KEY_FILE:-}
+      AI_VERDE_API_KEY: ${AI_VERDE_API_KEY:-}
+      AI_VERDE_API_KEY_FILE: ${AI_VERDE_API_KEY_FILE:-}
+      VERDE_LLM_DEFAULT_MODEL: ${VERDE_LLM_DEFAULT_MODEL:-}
+      VERDE_LLM_PROVIDER_NAME: ${VERDE_LLM_PROVIDER_NAME:-}
+      WORKSPACE_UI_PORT: ${WORKSPACE_UI_PORT:-8888}
+      OPENCLAW_DISABLE_BONJOUR: "1"
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_TOKEN_FILE: ${GITHUB_TOKEN_FILE:-}
+      GH_TOKEN: ${GH_TOKEN:-}
+      GH_TOKEN_FILE: ${GH_TOKEN_FILE:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      TAVILY_API_KEY_FILE: ${TAVILY_API_KEY_FILE:-}
+    volumes:
+      - ${HERMES_STATE_DIR:-~/.openclaw}:/data/.openclaw
+      - ${HERMES_STATE_DIR:-~/.openclaw}:/root/.openclaw
+      - ${DATA_DIR:-./data}:/data
+      - ${WORKSPACE_DIR:-./workspace}:/data/workspace
+      - ${WORKSPACE_DIR:-./workspace}:/workspace
+      - ${EXTERNAL_STORAGE_DIR:-./external_storage}:/external_storage/local
+      - ${HERMES_RUNTIME_SECRETS_DIR:-./secrets}:/run/hermes-secrets:ro
+      - ./storage:/repo/storage:ro
+    ports:
+      - "127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789}:${OPENCLAW_GATEWAY_PORT:-18789}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    cpus: "${HERMES_CONTAINER_CPUS:-2.0}"
+    mem_limit: ${HERMES_CONTAINER_MEMORY:-50g}
+    deploy:
+      resources:
+        limits:
+          cpus: "${HERMES_CONTAINER_CPUS:-2.0}"
+          memory: ${HERMES_CONTAINER_MEMORY:-50g}
+    # No restart policy: this service is normally run as an interactive CLI shell.
+
+  workspace-ui:
+    image: oasis-hermes
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /data
+    entrypoint:
+      - /usr/bin/tini
+      - --
+    environment:
+      DATA_ROOT: /data
+      OPENCLAW_WORKSPACE: /data/workspace
+      EXTERNAL_STORAGE_ROOT: /external_storage
+      HERMES_STORAGE_CONFIG: /repo/storage/storage.yml
+      HERMES_BRANDING: ${HERMES_BRANDING:-1}
+      HERMES_PROJECT_TITLE: ${HERMES_PROJECT_TITLE:-OASIS Hermes Working Group}
+      WORKSPACE_UI_PORT: ${WORKSPACE_UI_PORT:-8888}
+      JUPYTER_TOKEN: ${WORKSPACE_UI_TOKEN:-hermes}
+    volumes:
+      - ${DATA_DIR:-./data}:/data
+      - ${WORKSPACE_DIR:-./workspace}:/data/workspace
+      - ${WORKSPACE_DIR:-./workspace}:/workspace
+      - ${EXTERNAL_STORAGE_DIR:-./external_storage}:/external_storage/local
+      - ./storage:/repo/storage:ro
+    ports:
+      - "127.0.0.1:${WORKSPACE_UI_PORT:-8888}:8888"
+    command:
+      - python3
+      - -m
+      - jupyter
+      - lab
+      - --ip=0.0.0.0
+      - --port=8888
+      - --no-browser
+      - --allow-root
+      - --ServerApp.root_dir=/data
+      - --ServerApp.token=${WORKSPACE_UI_TOKEN:-hermes}
+
+  workspace-cms:
+    image: oasis-hermes
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /data
+    entrypoint:
+      - /usr/bin/tini
+      - --
+      - /usr/local/bin/hermes-service-entrypoint
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATA_ROOT: /data
+      OPENCLAW_WORKSPACE: /data/workspace
+      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+      EXTERNAL_STORAGE_ROOT: /external_storage
+      HERMES_CMS_PORT: 8090
+      HERMES_GATEWAY_URL: ${HERMES_GATEWAY_URL:-}
+      HERMES_STORAGE_CONFIG: /repo/storage/storage.yml
+      HERMES_REPO_ROOT: /repo
+      HERMES_CMS_ROOTS: /workspace,/data/outputs,/repo/docs,/repo/examples,/repo/storage,/external_storage/local
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GH_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - ${DATA_DIR:-./data}:/data
+      - ${WORKSPACE_DIR:-./workspace}:/data/workspace
+      - ${WORKSPACE_DIR:-./workspace}:/workspace
+      - ${EXTERNAL_STORAGE_DIR:-./external_storage}:/external_storage/local
+      - ${HERMES_RUNTIME_SECRETS_DIR:-./secrets}:/run/hermes-secrets:ro
+      - ./docs:/repo/docs
+      - ./examples:/repo/examples:ro
+      - ./storage:/repo/storage:ro
+    ports:
+      - "127.0.0.1:${HERMES_CMS_PORT:-8090}:8090"
+    command:
+      - python3
+      - /opt/hermes/cms/hermes_cms.py

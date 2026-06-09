@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ScienceClaw storage registry",
+  "type": "object",
+  "required": ["version", "stores"],
+  "properties": {
+    "version": { "type": "integer" },
+    "default_mode": { "enum": ["stream", "cache", "download"] },
+    "stores": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "enum": ["local", "stac", "cog", "zarr", "parquet", "s3", "webdav", "irods", "http"]
+          },
+          "path": { "type": "string" },
+          "href": { "type": "string" },
+          "bucket": { "type": "string" },
+          "endpoint_url": { "type": "string" },
+          "endpoint_url_env": { "type": "string" },
+          "anonymous": { "type": "boolean" },
+          "description": { "type": "string" },
+          "credentials_env": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

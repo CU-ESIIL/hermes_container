@@ -1,0 +1,6 @@
+type: s3
+endpoint_url: https://mghp.osn.xsede.org
+bucket: s3://example-osn-bucket/path
+anonymous: true
+notes: "Template for public or credentialed Open Storage Network style buckets."
+

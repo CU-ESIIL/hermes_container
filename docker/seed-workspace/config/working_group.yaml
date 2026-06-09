@@ -1,0 +1,58 @@
+# Local working-group configuration copied from the OASIS Hermes template.
+# Edit this file inside a spawned working group to describe the specific project.
+# Keep secrets out of this file.
+
+project:
+  title: "OASIS Hermes"
+  short_title: "Hermes"
+  subtitle: "ESIIL's multi-agent workspace"
+  mission: "A calm, reproducible, GitHub-native scientific operations environment for environmental synthesis."
+  lifecycle_state: "proposed"
+  repository: "set-after-spawn"
+  branch: "set-after-spawn"
+  powered_by: "Hermes"
+
+branding:
+  enabled: true
+  project_title: "OASIS Hermes"
+  short_title: "Hermes"
+  subtitle: "ESIIL's multi-agent workspace"
+  primary_color: "#234A65"
+  accent_blue: "#42BCDC"
+  accent_green: "#007135"
+  body_text: "#161A19"
+  relief_gray: "#E3E3E3"
+
+workspace:
+  default_landing: "WORKING_GROUP_COCKPIT.md"
+  private_workspace: "/workspace"
+  data_root: "/data"
+  external_storage_root: "/external_storage"
+  repository_principle: "GitHub = control plane; repo = memory; container = runtime."
+
+agents:
+  default_human_interface: "PI Liaison / User Interview Agent"
+  direct_user_access_to_all_agents: false
+  require_human_review_for_public_outputs: true
+
+integrations:
+  slack:
+    enabled: false
+    notes: "Slack should talk to the PI Liaison, not directly to execution agents."
+  github:
+    enabled: true
+    notes: "Use issues, branches, pull requests, workflows, releases, and commits as visible operational state."
+  verde:
+    enabled: false
+    notes: "Use open-model API routes for bounded, reviewable specialist tasks only."
+
+lifecycle:
+  state: "proposed"
+  last_checkpoint: ""
+  next_review: ""
+
+safety:
+  agents_may_recommend_humans_approve: true
+  publication_requires_human_approval: true
+  sensitive_claims_require_review: true
+  secrets_live_outside_repo: true
