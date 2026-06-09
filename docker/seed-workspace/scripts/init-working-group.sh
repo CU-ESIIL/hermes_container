@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-workspace="${WORKSPACE_DIR:-/workspace}"
-template_root="/opt/openclaw/seed-workspace"
+workspace="${HERMES_WORKSPACE:-${WORKSPACE_DIR:-/workspace}}"
+template_root="${HERMES_SEED_DIR:-/opt/hermes/seed-workspace}"
 force=0
 
 usage() {

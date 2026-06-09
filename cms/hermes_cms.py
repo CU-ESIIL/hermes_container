@@ -33,7 +33,7 @@ BLOCKED_PATHS = {
     Path("/run/secrets"),
     Path("/var/run/secrets"),
 }
-BLOCKED_PARTS = {".git", ".openclaw", ".ssh", "node_modules", "__pycache__", "secrets"}
+BLOCKED_PARTS = {".git", ".hermes", ".openclaw", ".ssh", "node_modules", "__pycache__", "secrets"}
 BLOCKED_NAMES = {"id_rsa", "id_ed25519"}
 BLOCKED_SUFFIXES = {".pem", ".key", ".token"}
 MAX_TEXT_PREVIEW_BYTES = 250_000
@@ -99,7 +99,7 @@ SAFE_WRITE_ROOTS = configured_safe_write_roots()
 
 
 def workspace_root() -> Path:
-    return Path(os.environ.get("OPENCLAW_WORKSPACE", "/workspace")).resolve(strict=False)
+    return Path(os.environ.get("HERMES_WORKSPACE") or os.environ.get("OPENCLAW_WORKSPACE", "/workspace")).resolve(strict=False)
 
 
 def github_config_root() -> Path:
@@ -886,7 +886,8 @@ class Handler(BaseHTTPRequestHandler):
         configured = os.environ.get("HERMES_GATEWAY_URL", "").strip()
         if configured:
             return configured
-        port = os.environ.get("OPENCLAW_GATEWAY_PORT", "18789").strip() or "18789"
+        port = os.environ.get("HERMES_PORT") or os.environ.get("OPENCLAW_GATEWAY_PORT", "18789")
+        port = port.strip() or "18789"
         host_header = self.headers.get("Host", "")
         if host_header.startswith("[") and "]" in host_header:
             host = host_header[1:host_header.index("]")]

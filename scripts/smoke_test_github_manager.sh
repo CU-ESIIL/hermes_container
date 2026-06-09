@@ -51,7 +51,7 @@ else
   fail "gh missing from host and Dockerfile"
 fi
 
-OPENCLAW_WORKSPACE="${workspace}" \
+HERMES_WORKSPACE="${workspace}" \
 HERMES_CMS_ROOTS="${workspace}" \
 HERMES_FILE_WRITABLE_ROOTS="${workspace},${tmp_root}/tmp" \
 python3 - <<'PY' && pass "registry and policy functions" || fail "registry and policy functions"
@@ -89,8 +89,8 @@ assert cms.github_setup_git_credentials()["ok"] is False
 PY
 
 HERMES_CMS_PORT="${port}" \
-OPENCLAW_GATEWAY_PORT="18791" \
-OPENCLAW_WORKSPACE="${workspace}" \
+HERMES_PORT="18791" \
+HERMES_WORKSPACE="${workspace}" \
 HERMES_CMS_ROOTS="${workspace}" \
 HERMES_FILE_WRITABLE_ROOTS="${workspace},${tmp_root}/tmp" \
 python3 "${repo_root}/cms/hermes_cms.py" >"${tmp_root}/cms.log" 2>&1 &

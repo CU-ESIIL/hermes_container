@@ -40,7 +40,7 @@ mkdir -p "${workspace}" "${outputs}" "${scratch}"
 python3 "${repo_root}/scripts/seed_file_manager_demo.py" --workspace "${workspace}" >/dev/null
 
 HERMES_CMS_PORT="${port}" \
-OPENCLAW_GATEWAY_PORT="18791" \
+HERMES_PORT="18791" \
 HERMES_CMS_ROOTS="${workspace},${outputs}" \
 HERMES_FILE_WRITABLE_ROOTS="${workspace},${outputs},${scratch}" \
 python3 "${repo_root}/cms/hermes_cms.py" >"${tmp_root}/cms.log" 2>&1 &

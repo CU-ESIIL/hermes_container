@@ -5,25 +5,20 @@ LABEL org.opencontainers.image.description="ESIIL/OASIS Hermes research applianc
 
 ENV HOME=/root
 ENV DATA_ROOT=/data
-ENV HERMES_STATE_DIR=/data/.openclaw
-ENV OPENCLAW_CONFIG_DIR=/data/.openclaw
-ENV OPENCLAW_AUTH_PROFILE_SECRET_DIR=/data/.openclaw/auth-profile-secrets
-ENV OPENCLAW_WORKSPACE=/data/workspace
+ENV HERMES_HOME=/data/.hermes
+ENV HERMES_STATE_DIR=/data/.hermes
+ENV HERMES_WORKSPACE=/data/workspace
 ENV EXTERNAL_STORAGE_ROOT=/external_storage
 ENV HERMES_CMS_PORT=8090
-ENV OPENCLAW_DEFAULT_MODEL=codex/gpt-5.5
-ENV OPENCLAW_GATEWAY_BIND=lan
-ENV OPENCLAW_GATEWAY_PORT=18789
-ENV OPENCLAW_CONTROL_ORIGINS=http://127.0.0.1:18789,http://localhost:18789
+ENV HERMES_PORT=18789
+ENV HERMES_HOST=0.0.0.0
 ENV WORKSPACE_UI_PORT=8888
-ENV OPENCLAW_SEED_WORKSPACE=1
-ENV OPENCLAW_INIT_WORKING_GROUP=1
-ENV OPENCLAW_START_PI_LIAISON=1
-ENV OPENCLAW_CONFIGURE_SLACK=1
+ENV HERMES_SEED_WORKSPACE=1
+ENV HERMES_INIT_WORKING_GROUP=1
 ENV HERMES_BRANDING=1
 ENV HERMES_PROJECT_TITLE="OASIS Hermes Working Group"
 ENV NODE_ENV=production
-ARG OPENCLAW_VERSION=2026.5.18
+ARG HERMES_AGENT_BRANCH=main
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -66,9 +61,10 @@ RUN apt-get update \
         wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Hermes uses the upstream agent gateway runtime implementation.
-RUN npm install -g openclaw@${OPENCLAW_VERSION} \
-    && npm cache clean --force
+# Install the real Nous Research Hermes Agent runtime.
+RUN curl -fsSL https://hermes-agent.nousresearch.com/install.sh \
+        | bash -s -- --branch "${HERMES_AGENT_BRANCH}" --skip-setup --skip-browser --hermes-home /data/.hermes \
+    && hermes --version
 
 COPY requirements-spatiotemporal.txt /tmp/requirements-spatiotemporal.txt
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
@@ -80,13 +76,13 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
 
 WORKDIR /data/workspace
 
-RUN mkdir -p /data/.openclaw/auth-profile-secrets /data/workspace /workspace /external_storage/local
+RUN mkdir -p /data/.hermes /data/workspace /workspace /external_storage/local
 
 COPY docker/entrypoint.sh /usr/local/bin/hermes-container-entrypoint
 COPY docker/service-entrypoint.sh /usr/local/bin/hermes-service-entrypoint
 COPY scripts/init-data-layout.sh /usr/local/bin/hermes-init-data-layout
-COPY scripts/openclaw-storage /usr/local/bin/openclaw-storage
-COPY docker/seed-workspace /opt/openclaw/seed-workspace
+COPY scripts/openclaw-storage /usr/local/bin/hermes-storage
+COPY docker/seed-workspace /opt/hermes/seed-workspace
 COPY cms /opt/hermes/cms
 COPY storage /opt/hermes/storage
 COPY branding/control-ui /opt/hermes/branding/control-ui
@@ -96,13 +92,14 @@ COPY scripts/seed_file_manager_demo.py /usr/local/bin/hermes-seed-file-manager-d
 RUN chmod +x /usr/local/bin/hermes-container-entrypoint \
     && chmod +x /usr/local/bin/hermes-service-entrypoint \
     && chmod +x /usr/local/bin/hermes-init-data-layout \
-    && chmod +x /usr/local/bin/openclaw-storage \
+    && ln -s /usr/local/bin/hermes-storage /usr/local/bin/openclaw-storage \
+    && chmod +x /usr/local/bin/hermes-storage \
     && chmod +x /usr/local/bin/hermes-install-control-ui-branding \
     && chmod +x /usr/local/bin/hermes-seed-file-manager-demo \
-    && chmod +x /opt/openclaw/seed-workspace/scripts/init-working-group.sh \
-    && chmod +x /opt/openclaw/seed-workspace/scripts/start-pi-liaison.sh \
-    && chmod +x /opt/openclaw/seed-workspace/scripts/check-secrets.sh \
-    && chmod +x /opt/openclaw/seed-workspace/scripts/mask-secrets.sh \
+    && chmod +x /opt/hermes/seed-workspace/scripts/init-working-group.sh \
+    && chmod +x /opt/hermes/seed-workspace/scripts/start-pi-liaison.sh \
+    && chmod +x /opt/hermes/seed-workspace/scripts/check-secrets.sh \
+    && chmod +x /opt/hermes/seed-workspace/scripts/mask-secrets.sh \
     && chmod +x /opt/hermes/cms/hermes_cms.py \
     && chmod +x /opt/hermes/storage/scripts/*.py
 

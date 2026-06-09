@@ -12,7 +12,7 @@ external_storage_root="${tmp_root}/external_storage"
 "${repo_root}/scripts/init-data-layout.sh" --data-root "${data_root}" --external-storage-root "${external_storage_root}" >/tmp/hermes-layout-2.log
 
 required_dirs=(
-  ".openclaw"
+  ".hermes"
   "workspace"
   "downloads"
   "outputs"

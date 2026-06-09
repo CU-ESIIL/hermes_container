@@ -37,7 +37,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 dirs=(
-  ".openclaw"
+  ".hermes"
   "workspace"
   "downloads"
   "outputs"
@@ -66,7 +66,7 @@ dirs=(
 readme_for() {
   case "$1" in
     ".") echo "Persistent Hermes data root. Runtime state, workspaces, outputs, logs, skills, agents, notebooks, and optional catalogs live here." ;;
-    ".openclaw") echo "Hermes runtime state and auth profiles. Do not commit this directory." ;;
+    ".hermes") echo "Hermes Agent runtime state and auth profiles. Do not commit this directory." ;;
     "workspace") echo "Primary scientific workspace. This is also mounted at /workspace for compatibility." ;;
     "downloads") echo "Temporary or user-approved downloads. Document provenance before analysis." ;;
     "outputs") echo "Generated artifacts that should be easy to inspect after runs." ;;

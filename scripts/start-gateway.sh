@@ -4,18 +4,10 @@ set -Eeuo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${repo_root}"
 
-mkdir -p "${HOME}/.openclaw" "${repo_root}/workspace"
+mkdir -p "${HOME}/.hermes" "${repo_root}/workspace"
 
-"${repo_root}/scripts/check-secrets.sh"
+docker compose up -d hermes-local
 
-container_id="$(
-  docker compose run -d \
-    --service-ports \
-    -e OPENCLAW_START_PI_LIAISON=0 \
-    hermes-local \
-    openclaw gateway run --force
-)"
-
-echo "Hermes gateway container started: ${container_id}"
-echo "Probe Slack health with:"
-echo "  docker exec ${container_id} openclaw channels status --channel slack --probe --timeout 20000"
+container_id="$(docker compose ps -q hermes-local)"
+echo "Hermes Agent container started: ${container_id}"
+echo "Open: http://127.0.0.1:${HERMES_PORT:-18789}/"

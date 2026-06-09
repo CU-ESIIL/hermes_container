@@ -12,32 +12,22 @@ services:
       - path: .env
         required: false
     environment:
-      OPENCLAW_MODEL: ${OPENCLAW_MODEL:-}
       DATA_ROOT: /data
-      OPENCLAW_CONFIG_DIR: /data/.openclaw
-      OPENCLAW_AUTH_PROFILE_SECRET_DIR: /data/.openclaw/auth-profile-secrets
-      OPENCLAW_WORKSPACE: /data/workspace
+      HERMES_HOME: /data/.hermes
+      HERMES_STATE_DIR: /data/.hermes
+      HERMES_WORKSPACE: /data/workspace
       EXTERNAL_STORAGE_ROOT: /external_storage
       HERMES_CMS_PORT: ${HERMES_CMS_PORT:-8090}
       HERMES_STORAGE_CONFIG: /repo/storage/storage.yml
       HERMES_BRANDING: ${HERMES_BRANDING:-1}
       HERMES_PROJECT_TITLE: ${HERMES_PROJECT_TITLE:-OASIS Hermes Working Group}
-      OPENCLAW_DEFAULT_MODEL: ${OPENCLAW_DEFAULT_MODEL:-codex/gpt-5.5}
-      OPENCLAW_GATEWAY_BIND: ${OPENCLAW_GATEWAY_BIND:-lan}
-      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
-      OPENCLAW_GATEWAY_AUTH_MODE: ${OPENCLAW_GATEWAY_AUTH_MODE:-token}
-      OPENCLAW_CONTROL_ORIGINS: ${OPENCLAW_CONTROL_ORIGINS:-http://127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789},http://localhost:${OPENCLAW_GATEWAY_PORT:-18789}}
-      OPENCLAW_SEED_WORKSPACE: ${OPENCLAW_SEED_WORKSPACE:-1}
-      OPENCLAW_INIT_WORKING_GROUP: ${OPENCLAW_INIT_WORKING_GROUP:-1}
-      OPENCLAW_START_PI_LIAISON: ${OPENCLAW_START_PI_LIAISON:-1}
-      OPENCLAW_CONFIGURE_SLACK: ${OPENCLAW_CONFIGURE_SLACK:-1}
-      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
-      SLACK_BOT_TOKEN_FILE: ${SLACK_BOT_TOKEN_FILE:-}
-      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN:-}
-      SLACK_APP_TOKEN_FILE: ${SLACK_APP_TOKEN_FILE:-}
-      SLACK_DEFAULT_CHANNEL: ${SLACK_DEFAULT_CHANNEL:-}
+      HERMES_PORT: ${HERMES_PORT:-18789}
+      HERMES_HOST: 0.0.0.0
+      HERMES_SEED_WORKSPACE: ${HERMES_SEED_WORKSPACE:-1}
+      HERMES_INIT_WORKING_GROUP: ${HERMES_INIT_WORKING_GROUP:-1}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_API_KEY_FILE: ${OPENAI_API_KEY_FILE:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
       VERDE_LLM_BASE_URL: ${VERDE_LLM_BASE_URL:-}
       VERDE_LLM_API_KEY: ${VERDE_LLM_API_KEY:-}
       VERDE_LLM_API_KEY_FILE: ${VERDE_LLM_API_KEY_FILE:-}
@@ -45,8 +35,10 @@ services:
       AI_VERDE_API_KEY_FILE: ${AI_VERDE_API_KEY_FILE:-}
       VERDE_LLM_DEFAULT_MODEL: ${VERDE_LLM_DEFAULT_MODEL:-}
       VERDE_LLM_PROVIDER_NAME: ${VERDE_LLM_PROVIDER_NAME:-}
+      NOUS_API_KEY: ${NOUS_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       WORKSPACE_UI_PORT: ${WORKSPACE_UI_PORT:-8888}
-      OPENCLAW_DISABLE_BONJOUR: "1"
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_TOKEN_FILE: ${GITHUB_TOKEN_FILE:-}
       GH_TOKEN: ${GH_TOKEN:-}
@@ -54,8 +46,7 @@ services:
       TAVILY_API_KEY: ${TAVILY_API_KEY:-}
       TAVILY_API_KEY_FILE: ${TAVILY_API_KEY_FILE:-}
     volumes:
-      - ${HERMES_STATE_DIR:-~/.openclaw}:/data/.openclaw
-      - ${HERMES_STATE_DIR:-~/.openclaw}:/root/.openclaw
+      - ${HERMES_STATE_DIR:-~/.hermes}:/data/.hermes
       - ${DATA_DIR:-./data}:/data
       - ${WORKSPACE_DIR:-./workspace}:/data/workspace
       - ${WORKSPACE_DIR:-./workspace}:/workspace
@@ -63,7 +54,7 @@ services:
       - ${HERMES_RUNTIME_SECRETS_DIR:-./secrets}:/run/hermes-secrets:ro
       - ./storage:/repo/storage:ro
     ports:
-      - "127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789}:${OPENCLAW_GATEWAY_PORT:-18789}"
+      - "127.0.0.1:${HERMES_PORT:-18789}:${HERMES_PORT:-18789}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     cpus: "${HERMES_CONTAINER_CPUS:-2.0}"
@@ -73,7 +64,13 @@ services:
         limits:
           cpus: "${HERMES_CONTAINER_CPUS:-2.0}"
           memory: ${HERMES_CONTAINER_MEMORY:-50g}
-    # No restart policy: this service is normally run as an interactive CLI shell.
+    command:
+      - bash
+      - -lc
+      - |
+        hermes dashboard --host "${HERMES_HOST:-0.0.0.0}" --port "${HERMES_PORT:-18789}" ||
+        hermes dashboard --port "${HERMES_PORT:-18789}" ||
+        hermes gateway run --no-supervise
 
   workspace-ui:
     image: oasis-hermes
@@ -86,7 +83,7 @@ services:
       - --
     environment:
       DATA_ROOT: /data
-      OPENCLAW_WORKSPACE: /data/workspace
+      HERMES_WORKSPACE: /data/workspace
       EXTERNAL_STORAGE_ROOT: /external_storage
       HERMES_STORAGE_CONFIG: /repo/storage/storage.yml
       HERMES_BRANDING: ${HERMES_BRANDING:-1}
@@ -128,8 +125,8 @@ services:
         required: false
     environment:
       DATA_ROOT: /data
-      OPENCLAW_WORKSPACE: /data/workspace
-      OPENCLAW_GATEWAY_PORT: ${OPENCLAW_GATEWAY_PORT:-18789}
+      HERMES_WORKSPACE: /data/workspace
+      HERMES_PORT: ${HERMES_PORT:-18789}
       EXTERNAL_STORAGE_ROOT: /external_storage
       HERMES_CMS_PORT: 8090
       HERMES_GATEWAY_URL: ${HERMES_GATEWAY_URL:-}

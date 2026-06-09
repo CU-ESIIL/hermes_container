@@ -1,0 +1,19 @@
+version: 1
+default_mode: stream
+stores:
+  project_workspace:
+    type: local
+    path: /workspace/projects/example-project
+    description: Small project control folder and manifests.
+  project_external:
+    type: local
+    path: /external_storage/local/example-project
+    description: Large-data shelf for this project.
+  global_workspace:
+    type: local
+    path: /workspace
+    description: Shared Hermes workspace.
+  global_external:
+    type: local
+    path: /external_storage/local
+    description: Shared external-storage mount.
