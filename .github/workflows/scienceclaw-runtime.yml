@@ -79,7 +79,12 @@ jobs:
             printf '%s\n' "${HERMES_VERDE_LLM_API_KEY_SECRET}" > secrets/verde_llm_api_key
             echo "VERDE_LLM_API_KEY_FILE=/run/hermes-secrets/verde_llm_api_key" >> .env
           else
-            echo "Missing Verde API key. Add HERMES_VERDE_LLM_API_KEY, VERDE_LLM_API_KEY, HERMES_AI_VERDE_API_KEY, or AI_VERDE_API_KEY in Settings -> Secrets and variables -> Actions." >&2
+            {
+              echo "Missing Verde API key for ${GITHUB_REPOSITORY}."
+              echo "GitHub repository secrets are scoped per repository and are not copied from CU-ESIIL/openclaw_container when this repo is copied or templated."
+              echo "Fix: add HERMES_VERDE_LLM_API_KEY, VERDE_LLM_API_KEY, HERMES_AI_VERDE_API_KEY, or AI_VERDE_API_KEY in this repository's Settings -> Secrets and variables -> Actions."
+              echo "Alternative: convert the existing OpenClaw secret to an organization secret and grant this repository access."
+            } >&2
             exit 1
           fi
           if [ -n "${HERMES_SLACK_BOT_TOKEN_SECRET}" ]; then

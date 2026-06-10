@@ -42,6 +42,8 @@ Add these repository secrets:
 | `SLACK_BOT_TOKEN` | optional | Enables Slack bot messaging. |
 | `SLACK_APP_TOKEN` | optional | Enables Slack Socket Mode. |
 
+Secrets are scoped to the repository where they are created. If this repository was copied from `CU-ESIIL/openclaw_container`, the OpenClaw repository's Actions secrets are not copied and are not visible here. Recreate the Verde and GitHub secrets in the Hermes repository, or define them as organization secrets and grant this repository access.
+
 Recommended variable:
 
 | Variable | Purpose |
