@@ -24,10 +24,10 @@ The `Hermes runtime from secrets` workflow reads repository secrets and writes t
 
 Supported repository secret names:
 
-- `HERMES_GITHUB_TOKEN`
-- `HERMES_VERDE_LLM_API_KEY`, `VERDE_LLM_API_KEY`, `HERMES_AI_VERDE_API_KEY`, or `AI_VERDE_API_KEY`
-- `HERMES_SLACK_BOT_TOKEN` or `SLACK_BOT_TOKEN`
-- `HERMES_SLACK_APP_TOKEN` or `SLACK_APP_TOKEN`
+- `HERMES_GITHUB_TOKEN` or `SCIENCECLAW_GITHUB_TOKEN`
+- `HERMES_VERDE_LLM_API_KEY`, `SCIENCECLAW_VERDE_LLM_API_KEY`, `VERDE_LLM_API_KEY`, `HERMES_AI_VERDE_API_KEY`, or `AI_VERDE_API_KEY`
+- `HERMES_SLACK_BOT_TOKEN`, `SCIENCECLAW_SLACK_BOT_TOKEN`, or `SLACK_BOT_TOKEN`
+- `HERMES_SLACK_APP_TOKEN`, `SCIENCECLAW_SLACK_APP_TOKEN`, or `SLACK_APP_TOKEN`
 
 Repository secrets are not copied when a repository is forked, templated, or copied from `CU-ESIIL/openclaw_container`. Add the secrets to the Hermes repository directly, or move shared values to organization secrets and grant the Hermes repository access.
 

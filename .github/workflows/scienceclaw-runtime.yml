@@ -51,13 +51,13 @@ jobs:
       - name: Materialize runner-local secrets
         shell: bash
         env:
-          HERMES_GITHUB_TOKEN_SECRET: ${{ secrets.HERMES_GITHUB_TOKEN }}
-          HERMES_VERDE_LLM_API_KEY_SECRET: ${{ secrets.HERMES_VERDE_LLM_API_KEY || secrets.VERDE_LLM_API_KEY || secrets.HERMES_AI_VERDE_API_KEY || secrets.AI_VERDE_API_KEY }}
-          HERMES_VERDE_LLM_BASE_URL_VALUE: ${{ vars.HERMES_VERDE_LLM_BASE_URL || vars.VERDE_LLM_BASE_URL || secrets.HERMES_VERDE_LLM_BASE_URL || secrets.VERDE_LLM_BASE_URL }}
-          HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE: ${{ vars.HERMES_VERDE_LLM_DEFAULT_MODEL || vars.VERDE_LLM_DEFAULT_MODEL || secrets.HERMES_VERDE_LLM_DEFAULT_MODEL || secrets.VERDE_LLM_DEFAULT_MODEL }}
-          HERMES_SLACK_BOT_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_BOT_TOKEN || secrets.SLACK_BOT_TOKEN }}
-          HERMES_SLACK_APP_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_APP_TOKEN || secrets.SLACK_APP_TOKEN }}
-          HERMES_SLACK_DEFAULT_CHANNEL_VALUE: ${{ vars.HERMES_SLACK_DEFAULT_CHANNEL || vars.SLACK_DEFAULT_CHANNEL || secrets.HERMES_SLACK_DEFAULT_CHANNEL || secrets.SLACK_DEFAULT_CHANNEL }}
+          HERMES_GITHUB_TOKEN_SECRET: ${{ secrets.HERMES_GITHUB_TOKEN || secrets.SCIENCECLAW_GITHUB_TOKEN }}
+          HERMES_VERDE_LLM_API_KEY_SECRET: ${{ secrets.HERMES_VERDE_LLM_API_KEY || secrets.SCIENCECLAW_VERDE_LLM_API_KEY || secrets.VERDE_LLM_API_KEY || secrets.HERMES_AI_VERDE_API_KEY || secrets.AI_VERDE_API_KEY }}
+          HERMES_VERDE_LLM_BASE_URL_VALUE: ${{ vars.HERMES_VERDE_LLM_BASE_URL || vars.SCIENCECLAW_VERDE_LLM_BASE_URL || vars.VERDE_LLM_BASE_URL || secrets.HERMES_VERDE_LLM_BASE_URL || secrets.SCIENCECLAW_VERDE_LLM_BASE_URL || secrets.VERDE_LLM_BASE_URL }}
+          HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE: ${{ vars.HERMES_VERDE_LLM_DEFAULT_MODEL || vars.SCIENCECLAW_VERDE_LLM_DEFAULT_MODEL || vars.VERDE_LLM_DEFAULT_MODEL || secrets.HERMES_VERDE_LLM_DEFAULT_MODEL || secrets.SCIENCECLAW_VERDE_LLM_DEFAULT_MODEL || secrets.VERDE_LLM_DEFAULT_MODEL }}
+          HERMES_SLACK_BOT_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_BOT_TOKEN || secrets.SCIENCECLAW_SLACK_BOT_TOKEN || secrets.SLACK_BOT_TOKEN }}
+          HERMES_SLACK_APP_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_APP_TOKEN || secrets.SCIENCECLAW_SLACK_APP_TOKEN || secrets.SLACK_APP_TOKEN }}
+          HERMES_SLACK_DEFAULT_CHANNEL_VALUE: ${{ vars.HERMES_SLACK_DEFAULT_CHANNEL || vars.SCIENCECLAW_SLACK_DEFAULT_CHANNEL || vars.SLACK_DEFAULT_CHANNEL || secrets.HERMES_SLACK_DEFAULT_CHANNEL || secrets.SCIENCECLAW_SLACK_DEFAULT_CHANNEL || secrets.SLACK_DEFAULT_CHANNEL }}
         run: |
           set -Eeuo pipefail
           umask 077
@@ -82,7 +82,7 @@ jobs:
             {
               echo "Missing Verde API key for ${GITHUB_REPOSITORY}."
               echo "GitHub repository secrets are scoped per repository and are not copied from CU-ESIIL/openclaw_container when this repo is copied or templated."
-              echo "Fix: add HERMES_VERDE_LLM_API_KEY, VERDE_LLM_API_KEY, HERMES_AI_VERDE_API_KEY, or AI_VERDE_API_KEY in this repository's Settings -> Secrets and variables -> Actions."
+              echo "Fix: add HERMES_VERDE_LLM_API_KEY, SCIENCECLAW_VERDE_LLM_API_KEY, VERDE_LLM_API_KEY, HERMES_AI_VERDE_API_KEY, or AI_VERDE_API_KEY in this repository's Settings -> Secrets and variables -> Actions."
               echo "Alternative: convert the existing OpenClaw secret to an organization secret and grant this repository access."
             } >&2
             exit 1

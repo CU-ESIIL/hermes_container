@@ -37,12 +37,12 @@ Add these repository secrets:
 
 | Secret | Required | Purpose |
 | --- | --- | --- |
-| `HERMES_GITHUB_TOKEN` | yes | Lets the running container fetch, branch, commit, push, and open pull requests against authorized repositories. |
-| `HERMES_VERDE_LLM_API_KEY` or `VERDE_LLM_API_KEY` | yes for Verde | Authenticates the AI-VERDE model route. The workflow also accepts `HERMES_AI_VERDE_API_KEY` or `AI_VERDE_API_KEY`. |
+| `HERMES_GITHUB_TOKEN` or `SCIENCECLAW_GITHUB_TOKEN` | yes | Lets the running container fetch, branch, commit, push, and open pull requests against authorized repositories. |
+| `HERMES_VERDE_LLM_API_KEY`, `SCIENCECLAW_VERDE_LLM_API_KEY`, or `VERDE_LLM_API_KEY` | yes for Verde | Authenticates the AI-VERDE model route. The workflow also accepts `HERMES_AI_VERDE_API_KEY` or `AI_VERDE_API_KEY`. |
 | `SLACK_BOT_TOKEN` | optional | Enables Slack bot messaging. |
 | `SLACK_APP_TOKEN` | optional | Enables Slack Socket Mode. |
 
-Secrets are scoped to the repository where they are created. If this repository was copied from `CU-ESIIL/openclaw_container`, the OpenClaw repository's Actions secrets are not copied and are not visible here. Recreate the Verde and GitHub secrets in the Hermes repository, or define them as organization secrets and grant this repository access.
+Secrets are scoped to the repository where they are created. If this repository was copied from `CU-ESIIL/openclaw_container`, the OpenClaw repository's Actions secrets are not copied and are not visible here. Recreate the Verde and GitHub secrets in the Hermes repository, or define them as organization secrets and grant this repository access. For compatibility, the Hermes workflow accepts the old `SCIENCECLAW_*` secret names used by `openclaw_container`.
 
 Recommended variable:
 
