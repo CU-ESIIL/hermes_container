@@ -38,7 +38,7 @@ Add these repository secrets:
 | Secret | Required | Purpose |
 | --- | --- | --- |
 | `HERMES_GITHUB_TOKEN` | yes | Lets the running container fetch, branch, commit, push, and open pull requests against authorized repositories. |
-| `VERDE_LLM_API_KEY` | yes for Verde | Authenticates the AI-VERDE model route. |
+| `HERMES_VERDE_LLM_API_KEY` or `VERDE_LLM_API_KEY` | yes for Verde | Authenticates the AI-VERDE model route. The workflow also accepts `HERMES_AI_VERDE_API_KEY` or `AI_VERDE_API_KEY`. |
 | `SLACK_BOT_TOKEN` | optional | Enables Slack bot messaging. |
 | `SLACK_APP_TOKEN` | optional | Enables Slack Socket Mode. |
 
@@ -86,7 +86,7 @@ Use the defaults for a smoke test. The workflow will:
 - check out the repository
 - write runner-local secret files
 - seed `.env` from safe settings and secret-file paths
-- add the launch repository to `/workspace/.openclaw-github/authorized-repos.yaml`
+- add the launch repository to `/workspace/.hermes-github/authorized-repos.yaml`
 - clone the launch repository into `/workspace/repos/<repo>`
 - start the Hermes instance
 - run Hermes and GitHub manager smoke checks
@@ -106,7 +106,7 @@ Open the running Hermes UI and choose **GitHub Auth** in the sidebar.
 Add additional repositories by `owner/repo`. They are recorded in:
 
 ```text
-/workspace/.openclaw-github/authorized-repos.yaml
+/workspace/.hermes-github/authorized-repos.yaml
 ```
 
 Clones live under:

@@ -43,8 +43,8 @@ integrations:
     enabled: true
     notes: "Use issues, branches, pull requests, workflows, releases, and commits as visible operational state."
   verde:
-    enabled: false
-    notes: "Use open-model API routes for bounded, reviewable specialist tasks only."
+    enabled: true
+    notes: "Default OpenAI-compatible endpoint for Hermes through the Verde API; requires a deployment-local key."
 
 lifecycle:
   state: "proposed"

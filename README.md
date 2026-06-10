@@ -28,7 +28,7 @@ Open:
 
 ## Included Capabilities
 
-- Hermes-branded workbench built on the upstream `openclaw` runtime
+- Hermes Agent workbench installed from the upstream Nous Research Hermes runtime
 - Docker and Compose setup with separate secrets overlay
 - visible filesystem browser for `/workspace`, outputs, docs, and storage roots
 - GitHub manager with explicit repository allowlisting and safe branch/PR flow
@@ -55,7 +55,7 @@ The same `_FILE` contract works for Verde credentials such as `VERDE_LLM_API_KEY
 - repository root: appliance code, docs, scripts, tests
 - `./workspace` -> `/workspace`: active project workspace
 - `workspace/outputs/` and `/data/outputs/`: generated outputs
-- `${HERMES_STATE_DIR}` -> `/data/.openclaw`: runtime state
+- `${HERMES_STATE_DIR}` -> `/data/.hermes`: Hermes runtime state
 - `./secrets`: local secret source for the optional secrets overlay
 
 ## Core Commands
@@ -78,6 +78,6 @@ Start with [`docs/index.md`](/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/
 
 ## Current Assumptions
 
-- Hermes uses the upstream `openclaw` runtime and gateway implementation.
+- Hermes uses the upstream Nous Research Hermes Agent runtime and dashboard.
 - Verde and GitHub credentials are deployment-specific and injected at runtime.
 - The filesystem and GitHub panels are intentionally lightweight control surfaces, not full IDE replacements.

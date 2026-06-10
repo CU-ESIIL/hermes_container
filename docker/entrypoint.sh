@@ -37,6 +37,8 @@ for secret_name in \
   ANTHROPIC_API_KEY \
   GITHUB_TOKEN \
   GH_TOKEN \
+  SLACK_BOT_TOKEN \
+  SLACK_APP_TOKEN \
   TAVILY_API_KEY; do
   load_secret_file_var "${secret_name}"
 done
@@ -49,6 +51,24 @@ fi
 
 if [ -z "${OPENAI_BASE_URL:-}" ] && [ -n "${VERDE_LLM_BASE_URL:-}" ]; then
   export OPENAI_BASE_URL="${VERDE_LLM_BASE_URL}"
+fi
+if [ -z "${OPENAI_BASE_URL:-}" ]; then
+  export OPENAI_BASE_URL="https://llm-api.cyverse.ai/v1"
+fi
+if [ -z "${VERDE_LLM_BASE_URL:-}" ]; then
+  export VERDE_LLM_BASE_URL="${OPENAI_BASE_URL}"
+fi
+if [ -z "${VERDE_LLM_DEFAULT_MODEL:-}" ]; then
+  export VERDE_LLM_DEFAULT_MODEL="js2/gpt-oss-120b"
+fi
+if [ -z "${VERDE_LLM_PROVIDER_NAME:-}" ]; then
+  export VERDE_LLM_PROVIDER_NAME="verde"
+fi
+if [ -z "${HERMES_MODEL_PROVIDER:-}" ]; then
+  export HERMES_MODEL_PROVIDER="custom"
+fi
+if [ -z "${HERMES_INFERENCE_MODEL:-}" ]; then
+  export HERMES_INFERENCE_MODEL="${VERDE_LLM_DEFAULT_MODEL}"
 fi
 
 if [ -z "${GH_TOKEN:-}" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
@@ -73,6 +93,71 @@ configure_github_cli() {
   git config --global credential.https://gist.github.com.helper '!gh auth git-credential' 2>/dev/null || true
 }
 
+set_hermes_env_var() {
+  local name="$1"
+  local value="$2"
+  local env_path="${hermes_home}/.env"
+  local tmp_path
+
+  [ -n "${value}" ] || return 0
+  mkdir -p "${hermes_home}"
+  touch "${env_path}"
+  chmod 600 "${env_path}" 2>/dev/null || true
+  tmp_path="$(mktemp)"
+  awk -v name="${name}" -v value="${value}" '
+    BEGIN { written = 0 }
+    index($0, name "=") == 1 {
+      print name "=" value
+      written = 1
+      next
+    }
+    { print }
+    END {
+      if (written == 0) {
+        print name "=" value
+      }
+    }
+  ' "${env_path}" > "${tmp_path}"
+  mv "${tmp_path}" "${env_path}"
+  chmod 600 "${env_path}" 2>/dev/null || true
+}
+
+configure_hermes_model() {
+  [ "${HERMES_CONFIGURE_MODEL:-1}" != "0" ] || return 0
+
+  local config_path="${hermes_home}/config.yaml"
+  local model="${HERMES_INFERENCE_MODEL:-${VERDE_LLM_DEFAULT_MODEL:-js2/gpt-oss-120b}}"
+  local provider="${HERMES_MODEL_PROVIDER:-custom}"
+  local base_url="${OPENAI_BASE_URL:-${VERDE_LLM_BASE_URL:-https://llm-api.cyverse.ai/v1}}"
+
+  mkdir -p "${hermes_home}"
+  set_hermes_env_var OPENAI_BASE_URL "${base_url}"
+  set_hermes_env_var HERMES_INFERENCE_MODEL "${model}"
+  set_hermes_env_var HERMES_MODEL_PROVIDER "${provider}"
+  set_hermes_env_var VERDE_LLM_BASE_URL "${VERDE_LLM_BASE_URL:-${base_url}}"
+  set_hermes_env_var VERDE_LLM_DEFAULT_MODEL "${VERDE_LLM_DEFAULT_MODEL:-${model}}"
+  set_hermes_env_var VERDE_LLM_PROVIDER_NAME "${VERDE_LLM_PROVIDER_NAME:-verde}"
+  set_hermes_env_var OPENAI_API_KEY "${OPENAI_API_KEY:-}"
+  set_hermes_env_var VERDE_LLM_API_KEY "${VERDE_LLM_API_KEY:-}"
+  set_hermes_env_var AI_VERDE_API_KEY "${AI_VERDE_API_KEY:-}"
+  set_hermes_env_var GITHUB_TOKEN "${GITHUB_TOKEN:-}"
+  set_hermes_env_var GH_TOKEN "${GH_TOKEN:-}"
+
+  if [ ! -s "${config_path}" ] || [ "${HERMES_FORCE_MODEL_CONFIG:-0}" = "1" ]; then
+    cat > "${config_path}" <<EOF
+model:
+  default: "${model}"
+  provider: "${provider}"
+  base_url: "${base_url}"
+terminal:
+  backend: "local"
+  cwd: "${workspace}"
+  timeout: 180
+EOF
+    chmod 600 "${config_path}" 2>/dev/null || true
+  fi
+}
+
 if command -v hermes-init-data-layout >/dev/null 2>&1; then
   hermes-init-data-layout --data-root "${data_root}" >/tmp/hermes-data-layout.log 2>&1 || {
     echo "Hermes data layout initialization failed. Recent log:" >&2
@@ -87,6 +172,8 @@ mkdir -p \
   "${workspace}" \
   /workspace \
   /external_storage/local
+
+configure_hermes_model
 
 if [ "${HERMES_SEED_WORKSPACE:-1}" != "0" ] && [ -d "${seed_dir}" ]; then
   find "${seed_dir}" -type f | while IFS= read -r src; do

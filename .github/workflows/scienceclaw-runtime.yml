@@ -35,8 +35,8 @@ jobs:
   launch:
     runs-on: ${{ inputs.runner_label }}
     env:
-      OPENCLAW_MODEL: verde/js2/gpt-oss-120b
-      OPENCLAW_DEFAULT_MODEL: verde/js2/gpt-oss-120b
+      HERMES_MODEL_PROVIDER: custom
+      HERMES_INFERENCE_MODEL: js2/gpt-oss-120b
       VERDE_LLM_BASE_URL: https://llm-api.cyverse.ai/v1
       VERDE_LLM_DEFAULT_MODEL: js2/gpt-oss-120b
       VERDE_LLM_PROVIDER_NAME: verde
@@ -52,7 +52,7 @@ jobs:
         shell: bash
         env:
           HERMES_GITHUB_TOKEN_SECRET: ${{ secrets.HERMES_GITHUB_TOKEN }}
-          HERMES_VERDE_LLM_API_KEY_SECRET: ${{ secrets.HERMES_VERDE_LLM_API_KEY || secrets.VERDE_LLM_API_KEY }}
+          HERMES_VERDE_LLM_API_KEY_SECRET: ${{ secrets.HERMES_VERDE_LLM_API_KEY || secrets.VERDE_LLM_API_KEY || secrets.HERMES_AI_VERDE_API_KEY || secrets.AI_VERDE_API_KEY }}
           HERMES_VERDE_LLM_BASE_URL_VALUE: ${{ vars.HERMES_VERDE_LLM_BASE_URL || vars.VERDE_LLM_BASE_URL || secrets.HERMES_VERDE_LLM_BASE_URL || secrets.VERDE_LLM_BASE_URL }}
           HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE: ${{ vars.HERMES_VERDE_LLM_DEFAULT_MODEL || vars.VERDE_LLM_DEFAULT_MODEL || secrets.HERMES_VERDE_LLM_DEFAULT_MODEL || secrets.VERDE_LLM_DEFAULT_MODEL }}
           HERMES_SLACK_BOT_TOKEN_SECRET: ${{ secrets.HERMES_SLACK_BOT_TOKEN || secrets.SLACK_BOT_TOKEN }}
@@ -66,8 +66,8 @@ jobs:
           resolved_verde_base_url="${HERMES_VERDE_LLM_BASE_URL_VALUE:-${VERDE_LLM_BASE_URL}}"
           resolved_verde_default_model="${HERMES_VERDE_LLM_DEFAULT_MODEL_VALUE:-${VERDE_LLM_DEFAULT_MODEL}}"
           {
-            echo "OPENCLAW_MODEL=${OPENCLAW_MODEL}"
-            echo "OPENCLAW_DEFAULT_MODEL=${OPENCLAW_DEFAULT_MODEL}"
+            echo "HERMES_MODEL_PROVIDER=${HERMES_MODEL_PROVIDER}"
+            echo "HERMES_INFERENCE_MODEL=${resolved_verde_default_model}"
             echo "VERDE_LLM_BASE_URL=${resolved_verde_base_url}"
             echo "VERDE_LLM_DEFAULT_MODEL=${resolved_verde_default_model}"
             echo "VERDE_LLM_PROVIDER_NAME=${VERDE_LLM_PROVIDER_NAME}"
@@ -78,6 +78,9 @@ jobs:
           if [ -n "${HERMES_VERDE_LLM_API_KEY_SECRET}" ]; then
             printf '%s\n' "${HERMES_VERDE_LLM_API_KEY_SECRET}" > secrets/verde_llm_api_key
             echo "VERDE_LLM_API_KEY_FILE=/run/hermes-secrets/verde_llm_api_key" >> .env
+          else
+            echo "Missing Verde API key. Add HERMES_VERDE_LLM_API_KEY, VERDE_LLM_API_KEY, HERMES_AI_VERDE_API_KEY, or AI_VERDE_API_KEY in Settings -> Secrets and variables -> Actions." >&2
+            exit 1
           fi
           if [ -n "${HERMES_SLACK_BOT_TOKEN_SECRET}" ]; then
             printf '%s\n' "${HERMES_SLACK_BOT_TOKEN_SECRET}" > secrets/slack_bot_token
@@ -103,7 +106,7 @@ jobs:
           owner="${GITHUB_REPOSITORY%%/*}"
           repo="${GITHUB_REPOSITORY#*/}"
           workspace_dir="instances/${INSTANCE_NAME}/workspace"
-          registry_dir="${workspace_dir}/.openclaw-github"
+          registry_dir="${workspace_dir}/.hermes-github"
           clone_dir="${workspace_dir}/repos/${repo}"
           mkdir -p "${registry_dir}" "${workspace_dir}/repos"
           tier="read"
@@ -141,13 +144,9 @@ jobs:
           set -Eeuo pipefail
           gateway_container="$(docker ps --filter "name=hermes-${{ inputs.instance_name }}-hermes-local-run" --format '{{.Names}}' | head -n 1)"
           test -n "${gateway_container}"
-          docker exec "${gateway_container}" openclaw --version
-          docker exec "${gateway_container}" openclaw agents list
-          docker exec "${gateway_container}" openclaw agent \
-            --agent main \
-            --session-id "github-runtime-smoke-${GITHUB_RUN_ID}" \
-            --message 'Reply with exactly: OK' \
-            --timeout 120
+          docker exec "${gateway_container}" hermes --version
+          docker exec "${gateway_container}" hermes status
+          docker exec "${gateway_container}" hermes -z 'Reply with exactly: OK'
           curl -fsS "http://127.0.0.1:${{ inputs.cms_port }}/api/github/status" | jq '{git_installed, gh_installed, authenticated, auth_method, token_available}'
 
       - name: Runtime links

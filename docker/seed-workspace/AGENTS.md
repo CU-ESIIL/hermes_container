@@ -18,7 +18,10 @@ The PI Liaison / User Interview Agent is the default human-facing role. Other ro
 - When Slack is enabled, treat it as an intake and review surface for the PI Liaison only. Slack should not directly trigger arbitrary shell execution, file deletion, publication, GitHub pushes, new mounts, new skills, or sensitive claims.
 - Treat worker jobs and Kubernetes sub-agents as bounded execution jobs, not autonomous personalities. Agents may draft task YAML and review outputs, but launching cluster jobs, changing worker images, changing mounts, or expanding RBAC requires human approval.
 - When human approval is needed for shell, file, or repository actions, use the Hermes approval UI or the Hermes CMS/GitHub manager buttons. Do not ask the user to type bare `/approve`; that command only works for a specific pending approval id and decision.
-- For GitHub work, read `GITHUB_REPOS.md`. Humans and agents share the same authorized repository registry at `/workspace/.openclaw-github/authorized-repos.yaml`, and cloned repositories live under `/workspace/repos/`.
+- When setup behavior is unclear, use `CU-ESIIL/openclaw_container` as a reference for patterns, authentication flow, formatting, and control-surface ergonomics, but port those ideas into a native Hermes implementation with no OpenClaw runtime dependency.
+- Preserve the established Hermes branding lineage from the earlier OpenClaw-branded agent: the Hermes Agent should feel like the same polished ESIIL/OASIS workbench, renamed and adapted to Hermes rather than left as a generic upstream dashboard.
+- For GitHub work, read `GITHUB_REPOS.md`. Humans and agents share the same authorized repository registry at `/workspace/.hermes-github/authorized-repos.yaml`, and cloned repositories live under `/workspace/repos/`.
+- Treat the workspace as a Hermes project tree: `projects/` holds project folders, `documents/` and `analysis/` hold working artifacts, `outputs/` holds reviewable generated results, `agent_reports/` holds role handoffs, and `.hermes-github/` stores only GitHub authorization metadata rather than repository content.
 - For filesystem, project, GitHub, or remote-data work, read `RESOURCE_MAP.md` first. Then read the active project's `PROJECT.yaml`, `DATA_MANIFEST.md`, `GITHUB_REPOS.md`, and `EXTERNAL_LINKS.md`.
 
 ## 11. PI Liaison / User Interview Agent

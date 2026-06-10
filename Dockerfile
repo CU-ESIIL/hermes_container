@@ -17,7 +17,11 @@ ENV HERMES_SEED_WORKSPACE=1
 ENV HERMES_INIT_WORKING_GROUP=1
 ENV HERMES_BRANDING=1
 ENV HERMES_PROJECT_TITLE="OASIS Hermes Working Group"
-ENV NODE_ENV=production
+ENV HERMES_MODEL_PROVIDER=custom
+ENV HERMES_INFERENCE_MODEL=js2/gpt-oss-120b
+ENV VERDE_LLM_BASE_URL=https://llm-api.cyverse.ai/v1
+ENV VERDE_LLM_DEFAULT_MODEL=js2/gpt-oss-120b
+ENV VERDE_LLM_PROVIDER_NAME=verde
 ARG HERMES_AGENT_BRANCH=main
 
 RUN apt-get update \
@@ -64,7 +68,14 @@ RUN apt-get update \
 # Install the real Nous Research Hermes Agent runtime.
 RUN curl -fsSL https://hermes-agent.nousresearch.com/install.sh \
         | bash -s -- --branch "${HERMES_AGENT_BRANCH}" --skip-setup --skip-browser --hermes-home /data/.hermes \
-    && hermes --version
+    && hermes --version \
+    && cd /usr/local/lib/hermes-agent \
+    && npm install --include=dev \
+    && cd /usr/local/lib/hermes-agent/web \
+    && npm install --include=dev \
+    && npm run build
+
+ENV NODE_ENV=production
 
 COPY requirements-spatiotemporal.txt /tmp/requirements-spatiotemporal.txt
 RUN python3 -m pip install --break-system-packages --no-cache-dir \

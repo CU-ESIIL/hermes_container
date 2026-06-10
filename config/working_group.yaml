@@ -89,12 +89,12 @@ integrations:
   github:
     enabled: true
     role: "control-plane"
-  openclaw:
+  hermes:
     enabled: true
-    role: "gateway-and-agent-runtime"
+    role: "agent-runtime-and-dashboard"
   verde:
-    enabled: false
-    role: "bounded open-model experiments"
+    enabled: true
+    role: "default OpenAI-compatible model endpoint"
   external_storage:
     enabled: false
     role: "large-data shelf"

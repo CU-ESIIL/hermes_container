@@ -10,7 +10,7 @@ Hermes remains one interface into the workspace. The repository is the source of
 
 </div>
 
-![Hermes logo](assets/brand/hermes.png)
+![Hermes logo](assets/brand/hermes.svg)
 
 </div>
 

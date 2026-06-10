@@ -23,7 +23,7 @@ For Verde/CyVerse experiments, use the OpenAI-compatible base URL `https://llm-a
 ```dotenv
 VERDE_LLM_BASE_URL=https://llm-api.cyverse.ai/v1
 VERDE_LLM_API_KEY=
-VERDE_LLM_DEFAULT_MODEL=
+VERDE_LLM_DEFAULT_MODEL=js2/gpt-oss-120b
 VERDE_LLM_PROVIDER_NAME=verde
 ```
 
@@ -62,7 +62,7 @@ The following model IDs were reported as available for the current API key conte
 
 Do not treat this table as approval to use a model for sensitive claims or external actions. It is an inventory for bounded experiments.
 
-These variables are intentionally generic placeholders. They make the container ready for local experimentation, but they do not guarantee that Hermes has registered a provider. Provider registration should be added only after checking the installed Hermes version and documenting the exact provider name, model ID, validation command, and fallback route.
+The container startup writes Hermes' local `config.yaml` with `provider: custom`, `base_url: https://llm-api.cyverse.ai/v1`, and `default: js2/gpt-oss-120b` unless `HERMES_CONFIGURE_MODEL=0` is set or an existing config is preserved. A real `VERDE_LLM_API_KEY`, `AI_VERDE_API_KEY`, or `OPENAI_API_KEY` is still required before inference will succeed.
 
 ## Evaluation Workflow
 
